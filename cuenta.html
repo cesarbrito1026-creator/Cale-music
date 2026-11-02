@@ -104,7 +104,7 @@ function msg(target,text){target.textContent=text;}
 function esc(s){return String(s).replace(/[&<>"']/g,k=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[k]));}
 function goodFile(f){return f && (f.type.startsWith("audio/")||/\.(mp3|m4a|aac|wav|flac|ogg)$/i.test(f.name));}
 function cleanName(name){return name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_.-]/g,"_").slice(0,95)||"audio.mp3";}
-function displayName(name){return name.replace(/^\d+_[a-z0-9]+__/,"").replace(/_/g," ");}
+function displayName(name){return name.replace(/^(?:\d+_[a-z0-9]+|local_[a-f0-9]{20})__/,"").replace(/_/g," ");}
 function showUser(u){
  user=u||null;gate.classList.toggle("hidden",!!user);dash.classList.toggle("hidden",!user);
  if(user){el("welcome").textContent=user.email||"Mi cuenta";el("password").value="";loadSongs();}
