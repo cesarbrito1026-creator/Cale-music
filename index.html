@@ -59,11 +59,11 @@
 </aside>
 <main class="main">
 <div class="top"><div><p class="eyebrow">TU BIBLIOTECA MUSICAL</p><h1>El ritmo tiene <em>tu nombre.</em></h1><p class="subtitle">La salsa que te gusta, tus artistas favoritos y tus propias listas. Todo en tu espacio CALE.</p></div><label class="searchbox"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Buscar artista o canción..." aria-label="Buscar música"></label></div>
-<section class="hero"><div><p class="eyebrow">COLECCIÓN DESTACADA</p><h2>Salsa clásica · Fania</h2><p>Diez artistas, diez canciones oficiales para empezar. Explora, guarda favoritos y mezcla tus canciones favoritas.</p><button class="btn" id="playMix">▶ Escuchar mezcla</button><div class="hero-upload"><label for="caleAudioQuickImport">🎵 Importar música desde mi dispositivo</label><input id="caleAudioQuickImport" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.webm" multiple aria-label="Seleccionar archivos de música"><small>Presiona «Elegir archivos» para abrir tus canciones. Actualización 6.</small></div></div></section>
+<section class="hero"><div><p class="eyebrow">COLECCIÓN DESTACADA</p><h2>Salsa clásica · Fania</h2><p>Diez artistas, diez canciones oficiales para empezar. Explora, guarda favoritos y mezcla tus canciones favoritas.</p><button class="btn" id="playMix">▶ Escuchar mezcla</button><div class="hero-upload"><label for="caleAudioQuickImport">🎵 Importar música desde mi dispositivo</label><input id="caleAudioQuickImport" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.webm" multiple aria-label="Seleccionar archivos de música"><small>Elige tu canción y espera la confirmación debajo.</small><div id="caleHeroImportStatus" class="status" role="status" aria-live="polite">Todavía no has importado canciones.</div></div></div></section>
 <section id="artistsSection"><div class="section-title"><h2>Explora artistas</h2><span class="mini">10 artistas iniciales</span></div><div class="artists" id="artists"></div></section>
 <section id="catalog"><div class="section-title"><h2 id="listTitle">Canciones para ti</h2><span id="count" class="mini"></span></div><div class="tools"><button class="chip active" id="allFilter">Todas</button><button class="chip" id="onlyFania">Publicaciones de Fania</button><button class="chip" id="mySongs">Agregadas por mí</button><button class="chip" id="random">⇄ Aleatorio: apagado</button></div><div class="grid" id="songs"></div></section>
 <section class="player-area" id="playerSection"><div class="viewer"><div class="video-frame"><div id="ytPlayer"></div><div class="preplay" id="preplay"><b>♪ Tu música empieza aquí</b><span>Selecciona una canción para reproducirla.</span></div></div><div class="play-details"><h3 id="nowTitle">Selecciona una canción</h3><p id="nowArtist">CALE MUSIC · Reproductor oficial</p><div class="controls"><button class="iconbtn" id="prev" aria-label="Canción anterior" title="Anterior">⏮</button><button class="iconbtn" id="togglePlay" aria-label="Reproducir o pausar" title="Reproducir o pausar">▶</button><button class="iconbtn" id="next" aria-label="Siguiente canción" title="Siguiente">⏭</button><button class="iconbtn" id="shuffle" aria-label="Activar o desactivar modo aleatorio" title="Aleatorio">⇄</button><button class="iconbtn" id="heart" aria-label="Guardar como favorito" title="Favoritos">♡</button><a id="videoLink" class="btn secondary small hide" target="_blank" rel="noopener noreferrer">Abrir en YouTube ↗</a></div><p class="note">Se muestra el reproductor oficial de YouTube. Los anuncios, restricciones y reproducción automática dependen de YouTube. Mantén esta página abierta mientras escuchas.</p></div></div>
-<div class="panel"><h3>Mis playlists</h3><p>Crea listas personales: se guardan en este navegador, sin registro.</p><form id="newPlaylist" class="inputline"><input id="playlistName" placeholder="Ej. Salsa para cocinar" aria-label="Nombre de la nueva playlist" maxlength="45" required><button class="btn small" type="submit">Crear</button></form><div id="playlists" class<div class="audio-lab" id="audioLab">
+<div class="panel"><h3>Mis playlists</h3><p>Crea listas personales: se guardan en este navegador, sin registro.</p><form id="newPlaylist" class="inputline"><input id="playlistName" placeholder="Ej. Salsa para cocinar" aria-label="Nombre de la nueva playlist" maxlength="45" required><button class="btn small" type="submit">Crear</button></form><div id="playlists" class="playlist-list"></div><div class="audio-lab" id="audioLab">
 <h3>🎧 Mi biblioteca · Solo audio</h3>
 <p>Agrega tus archivos de música desde el celular o la computadora. Escúchalos aquí, sin videos ni anuncios.</p>
 <label for="caleAudioSource" class="btn secondary audio-choose">📂 Elegir archivos de música</label><p class="mini">Puedes seleccionar varios archivos MP3, M4A o WAV a la vez desde Archivos.</p>
@@ -75,7 +75,7 @@
 <div class="local-header"><strong id="caleAudioCount">Mis canciones</strong><input type="search" id="caleAudioSearch" placeholder="Buscar en mi música..." aria-label="Buscar canciones importadas"></div>
 <div class="local-tracks" id="caleAudioList"><p class="mini">Tu biblioteca está vacía.</p></div>
 <p class="note">Los archivos se guardan en este navegador y dispositivo mediante almacenamiento local; no se publican ni se suben a GitHub. Para escucharlos desde otro dispositivo habría que configurar una biblioteca privada en la nube. Conserva siempre tus archivos originales: borrar datos del navegador o liberar espacio podría eliminar las copias guardadas aquí. En iPhone la reproducción con pantalla bloqueada depende de iOS. Los videos de Fania siguen usando YouTube.</p>
-</div>utomático de canción. Los temas de Fania todavía se escuchan mediante YouTube.</p></div><div class="importer"><h3>Agrega tu música</h3><p>Incluye otros videos que permitan reproducción integrada. No descargamos ni almacenamos audio.</p><form id="addMusic"><label for="newTitle">Título</label><input id="newTitle" required maxlength="90" placeholder="Nombre de la canción"><label for="newArtist">Artista</label><input id="newArtist" required maxlength="70" placeholder="Nombre del artista"><label for="newUrl">Enlace de YouTube</label><input id="newUrl" type="url" required placeholder="https://www.youtube.com/watch?v=..."><button class="btn small" type="submit">+ Agregar canción</button></form><div id="addStatus" class="status" aria-live="polite"></div></div></div></section>
+</div><div class="importer"><h3>Agrega tu música</h3><p>Incluye otros videos que permitan reproducción integrada. No descargamos ni almacenamos audio.</p><form id="addMusic"><label for="newTitle">Título</label><input id="newTitle" required maxlength="90" placeholder="Nombre de la canción"><label for="newArtist">Artista</label><input id="newArtist" required maxlength="70" placeholder="Nombre del artista"><label for="newUrl">Enlace de YouTube</label><input id="newUrl" type="url" required placeholder="https://www.youtube.com/watch?v=..."><button class="btn small" type="submit">+ Agregar canción</button></form><div id="addStatus" class="status" aria-live="polite"></div></div></div></section>
 <footer class="footer">CALE MUSIC es una biblioteca personal de enlaces, no un servicio de descarga de canciones. Los videos se reproducen desde YouTube en su reproductor visible. Puedes encontrar las fuentes en los enlaces de cada video. Los favoritos y playlists se almacenan solo en el dispositivo y navegador que estés usando.</footer>
 </main></div>
 <script src="https://www.youtube.com/iframe_api" async></script>
@@ -133,7 +133,7 @@ get('addMusic').addEventListener('submit',e=>{e.preventDefault();let id=extractI
 // Biblioteca personal en IndexedDB: conserva archivos de audio solo en este navegador.
 (function initPersonalAudio(){
   const input=get('caleAudioSource'),heroInput=get('caleAudioQuickImport'),audio=get('caleAudioPlayer'),label=get('caleAudioTrack');
-  const status=get('caleAudioStatus'),listEl=get('caleAudioList'),countEl=get('caleAudioCount');
+  const status=get('caleAudioStatus'),heroStatus=get('caleHeroImportStatus'),listEl=get('caleAudioList'),countEl=get('caleAudioCount');
   const search=get('caleAudioSearch'),prev=get('caleAudioPrev'),next=get('caleAudioNext'),shuffleBtn=get('caleAudioShuffle');
   window.calePersonalAudio=audio;
   const DB_NAME='cale-music-audio-v1', STORE='songs';
@@ -142,7 +142,7 @@ get('addMusic').addEventListener('submit',e=>{e.preventDefault();let id=extractI
   const formatSize=n=>n>=1024*1024?(n/(1024*1024)).toFixed(1)+' MB':Math.round(n/1024)+' KB';
   const titleOf=name=>name.replace(/\.[^.]+$/,'').replace(/_/g,' ');
   const metaOf=name=>{const t=titleOf(name).split(/\s+-\s+/);return t.length>=2?{artist:t.shift(),title:t.join(' - ')}:{artist:'Mi biblioteca',title:titleOf(name)};};
-  function setStatus(message){status.textContent=message;}
+  function setStatus(message){status.textContent=message;heroStatus.textContent=message;}
   function openLibrary(){return new Promise((resolve,reject)=>{
     if(!('indexedDB' in window))return reject(new Error('Sin IndexedDB'));
     const req=indexedDB.open(DB_NAME,1);
@@ -246,8 +246,8 @@ get('addMusic').addEventListener('submit',e=>{e.preventDefault();let id=extractI
     try{await refresh(firstNew);}catch(e){}
     setStatus('Importadas: '+added+(skipped?' · Ya existentes: '+skipped:'')+(failed?' · Sin guardar por espacio o permisos: '+failed:'')+'.');
   }
-  input.addEventListener('change',()=>{get('audioLab').scrollIntoView({behavior:'smooth',block:'start'});importFiles(input);});
-  heroInput.addEventListener('change',()=>{get('audioLab').scrollIntoView({behavior:'smooth',block:'start'});importFiles(heroInput);});
+  input.addEventListener('change',()=>{importFiles(input);});
+  heroInput.addEventListener('change',()=>{importFiles(heroInput);});
   search.addEventListener('input',render);
   listEl.addEventListener('click',async e=>{
     const play=e.target.closest('[data-local-play]');
