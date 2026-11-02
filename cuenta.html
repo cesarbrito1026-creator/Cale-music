@@ -49,6 +49,16 @@ button{font:inherit;cursor:pointer}
 .icon-btn{border:1px solid #444a59;border-radius:10px;background:#292c38;color:#e1dbe7;padding:6px 10px}
 audio{width:100%;margin:8px 0 3px}
 .previewtitle{color:var(--gold);font-weight:800;margin-bottom:4px}
+.player-controls{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0 13px}
+.player-controls button{border:1px solid #505365;background:#2e3343;color:#f4eef7;border-radius:11px;min-width:46px;height:43px;font-size:22px;display:grid;place-items:center;transition:background .15s}
+.player-controls button:hover:not(:disabled){background:#464258}
+.player-controls button:disabled{opacity:.45;cursor:not-allowed}
+.player-controls button.mainplay{min-width:64px;background:var(--gold);color:#15151b;border:0;font-size:24px}
+.player-controls button.active{color:var(--gold);border-color:var(--gold)}
+.player-controls .play-label{font-size:12px;color:#aeb0c1;margin-left:4px}
+.song.current{border-color:var(--gold);background:#302a36}
+.song.current .noteicon{color:#fff}
+@media(max-width:550px){.player-controls{gap:8px}.player-controls button{min-width:44px}.player-controls .play-label{width:100%;text-align:center;margin:0}}
 .empty{color:#b0b3c3;background:#151b27;padding:25px;border-radius:15px;border:1px dashed #404759;text-align:center}
 footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-size:12px}
 @media(max-width:550px){header{padding-top:17px}.brand{font-size:18px}main{margin-top:16px}.song{gap:6px}.card{border-radius:16px}}
@@ -82,6 +92,13 @@ footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-siz
 <div class="toolbar"><input type="file" id="upload" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg" multiple><button type="button" class="btn secondary" id="refresh">Actualizar biblioteca</button><button type="button" class="btn secondary" id="syncLocal">☁️ Sincronizar mis canciones guardadas aquí</button></div>
 <div class="status" id="libraryStatus" role="status" aria-live="polite">Preparando tu biblioteca...</div>
 <p class="previewtitle" id="nowPlaying">Selecciona una canción</p>
+<div class="player-controls" role="group" aria-label="Controles de reproducción de mi biblioteca">
+<button type="button" id="trackPrev" title="Canción anterior" aria-label="Canción anterior" disabled>⏮</button>
+<button type="button" id="trackPlayPause" class="mainplay" title="Reproducir o pausar" aria-label="Reproducir" disabled>▶</button>
+<button type="button" id="trackNext" title="Siguiente canción" aria-label="Siguiente canción" disabled>⏭</button>
+<button type="button" id="trackShuffle" title="Modo aleatorio" aria-label="Modo aleatorio" aria-pressed="false" disabled>⇄</button>
+<span id="trackPosition" class="play-label" aria-live="polite">0 canciones</span>
+</div>
 <audio id="player" controls preload="auto" playsinline aria-label="Reproductor de audio de CALE MUSIC"></audio>
 <div class="toolbar"><input type="search" id="filter" placeholder="Buscar en mi música..." aria-label="Buscar canciones"></div>
 <div class="library" id="cloudSongs"><div class="empty">Aquí aparecerán tus canciones.</div></div>
@@ -102,6 +119,65 @@ const cfg=window.CALE_CLOUD||{};
 const configured=/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(cfg.url||"")&&/^sb_publishable_|^eyJ/.test(cfg.publishableKey||"");
 const bucket=cfg.bucket||"cale-audio";
 let client=null,user=null,registerMode=false,library=[],loading=false;
+let currentTrack=null,shuffleOn=false,playRequestId=0;
+const prevBtn=el("trackPrev"),playBtn=el("trackPlayPause"),nextBtn=el("trackNext"),shuffleBtn=el("trackShuffle");
+function updatePlayerControls(){
+ const total=library.length,hasSongs=!!user&&total>0;
+ prevBtn.disabled=!hasSongs;nextBtn.disabled=!hasSongs;playBtn.disabled=!hasSongs;shuffleBtn.disabled=!hasSongs;
+ const playing=!player.paused&&!player.ended;
+ playBtn.textContent=playing?"Ⅱ":"▶";
+ playBtn.title=playing?"Pausar":"Reproducir";
+ playBtn.setAttribute("aria-label",playing?"Pausar":"Reproducir");
+ shuffleBtn.classList.toggle("active",shuffleOn);
+ shuffleBtn.setAttribute("aria-pressed",String(shuffleOn));
+ const index=currentTrack?library.findIndex(s=>s.name===currentTrack):-1;
+ el("trackPosition").textContent=total?(index>=0?(index+1)+" de "+total+" canciones":total+" canciones"):"0 canciones";
+}
+function clearPlayer(){
+ playRequestId++;
+ player.pause();player.removeAttribute("src");player.load();
+ currentTrack=null;el("nowPlaying").textContent="Selecciona una canción";
+ try{if("mediaSession" in navigator){navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState="none";}}catch(e){}
+ updatePlayerControls();
+}
+async function playTrack(name,autoPlay=true){
+ if(!user||!name||!library.some(f=>f.name===name))return;
+ const requestId=++playRequestId,ownerId=user.id;
+ msg(libraryStatus,"Cargando canción...");
+ try{
+  const r=await client.storage.from(bucket).createSignedUrl(ownerId+"/"+name,3600);
+  if(r.error)throw r.error;
+  if(requestId!==playRequestId||!user||user.id!==ownerId)return;
+  player.pause();player.src=r.data.signedUrl;player.load();
+  currentTrack=name;
+  el("nowPlaying").textContent=displayName(name);
+  if("mediaSession" in navigator&&typeof MediaMetadata!=="undefined"){
+   try{navigator.mediaSession.metadata=new MediaMetadata({title:displayName(name),artist:"Mi música",album:"CALE MUSIC"});}catch(e){}
+  }
+  renderSongs();updatePlayerControls();
+  if(autoPlay){
+   configureAudioSession();
+   try{await player.play();msg(libraryStatus,"Reproduciendo: "+displayName(name));}
+   catch(e){msg(libraryStatus,"Presiona ▶ para iniciar la canción.");}
+  }else msg(libraryStatus,"Lista para reproducir: "+displayName(name));
+ }catch(err){if(requestId===playRequestId)msg(libraryStatus,"No se pudo cargar la canción: "+(err.message||"Error desconocido"));}
+}
+function skipTrack(delta){
+ if(!user||!library.length)return;
+ const index=library.findIndex(s=>s.name===currentTrack);
+ if(shuffleOn&&library.length>1){
+  const others=library.filter(s=>s.name!==currentTrack);
+  return playTrack(others[Math.floor(Math.random()*others.length)].name,true);
+ }
+ const nextIndex=index<0?(delta<0?library.length-1:0):(index+delta+library.length)%library.length;
+ return playTrack(library[nextIndex].name,true);
+}
+function togglePlayback(){
+ if(!user||!library.length)return;
+ if(!player.src||!currentTrack)return playTrack(library[0].name,true);
+ if(player.paused){configureAudioSession();player.play().catch(()=>msg(libraryStatus,"Toca ▶ en el reproductor para iniciar la canción."));}
+ else player.pause();
+}
 function msg(target,text){target.textContent=text;}
 function esc(s){return String(s).replace(/[&<>"']/g,k=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[k]));}
 function goodFile(f){return f && (f.type.startsWith("audio/")||/\.(mp3|m4a|aac|wav|flac|ogg)$/i.test(f.name));}
@@ -110,7 +186,7 @@ function displayName(name){return name.replace(/^(?:\d+_[a-z0-9]+|local_[a-f0-9]
 function showUser(u){
  user=u||null;gate.classList.toggle("hidden",!!user);dash.classList.toggle("hidden",!user);
  if(user){el("welcome").textContent=user.email||"Mi cuenta";el("password").value="";loadSongs();}
- else{player.pause();player.removeAttribute("src");player.load();library=[];songsDiv.innerHTML='<div class="empty">Aquí aparecerán tus canciones.</div>';}
+ else{library=[];clearPlayer();songsDiv.innerHTML='<div class="empty">Aquí aparecerán tus canciones.</div>';}
 }
 function setBusy(b){el("authSubmit").disabled=b;el("toggleRegister").disabled=b;el("resetPassword").disabled=b;}
 if(!configured){el("setupNotice").textContent="Esta página de acceso ya está diseñada. Falta conectar el servicio de cuentas y almacenamiento privado para habilitarla.";return;}
@@ -156,7 +232,8 @@ async function loadSongs(){
   const result=await client.storage.from(bucket).list(user.id,{limit:100,sortBy:{column:"created_at",order:"desc"}});
   if(result.error)throw result.error;
   library=(result.data||[]).filter(f=>f.name&&!f.name.startsWith("."));
-  renderSongs();
+  if(currentTrack&&!library.some(f=>f.name===currentTrack))clearPlayer();
+  renderSongs();updatePlayerControls();
   msg(libraryStatus,library.length+" canción(es) en tu biblioteca privada."+(library.length===100?" Se muestran las primeras 100.":""));
  }catch(err){msg(libraryStatus,"No se pudo cargar la biblioteca: "+(err.message||"Revisa la configuración privada."));}
  finally{loading=false;}
@@ -166,7 +243,7 @@ function renderSongs(){
  const items=library.filter(f=>displayName(f.name).toLowerCase().includes(term));
  if(!items.length){songsDiv.innerHTML='<div class="empty">No hay canciones aquí todavía. Importa tus archivos de audio arriba.</div>';return;}
  songsDiv.innerHTML=items.map(f=>
- '<div class="song"><button type="button" class="trackplay" data-play="'+esc(f.name)+'">'+
+ '<div class="song '+(f.name===currentTrack?'current':'')+'"><button type="button" class="trackplay" data-play="'+esc(f.name)+'">'+
  '<span class="noteicon">♫</span><span class="name">'+esc(displayName(f.name))+'<small>Audio en tu nube privada</small></span></button>'+
  '<button type="button" class="icon-btn" data-delete="'+esc(f.name)+'" aria-label="Eliminar canción">×</button></div>'
  ).join("");
@@ -242,33 +319,43 @@ el("upload").addEventListener("change",async e=>{
 songsDiv.addEventListener("click",async e=>{
  if(!user)return;
  const play=e.target.closest("[data-play]"),remove=e.target.closest("[data-delete]");
- if(play){
-  const name=play.dataset.play;
-  try{
-   msg(libraryStatus,"Preparando audio...");
-   const r=await client.storage.from(bucket).createSignedUrl(user.id+"/"+name,3600);
-   if(r.error)throw r.error;
-   player.src=r.data.signedUrl;el("nowPlaying").textContent=displayName(name);
-   configureAudioSession();player.play().catch(()=>msg(libraryStatus,"Presiona ▶ para iniciar el audio."));
-   if("mediaSession" in navigator&&typeof MediaMetadata!=="undefined"){
-    navigator.mediaSession.metadata=new MediaMetadata({title:displayName(name),artist:"Mi música",album:"CALE MUSIC"});
-   }
-   msg(libraryStatus,"Reproduciendo desde tu biblioteca privada.");
-  }catch(err){msg(libraryStatus,"No se pudo reproducir: "+err.message);}
- }else if(remove){
-  const name=remove.dataset.delete;
-  if(!confirm("¿Eliminar esta canción de tu biblioteca de nube? Esta acción no se puede deshacer."))return;
-  try{
-   const r=await client.storage.from(bucket).remove([user.id+"/"+name]);
-   if(r.error)throw r.error;
-   if(el("nowPlaying").textContent===displayName(name)){player.pause();player.removeAttribute("src");player.load();}
-   await loadSongs();
-  }catch(err){msg(libraryStatus,"No se pudo eliminar: "+err.message);}
- }
+ if(play){playTrack(play.dataset.play,true);return;}
+ if(!remove)return;
+ const name=remove.dataset.delete;
+ if(!confirm("¿Eliminar esta canción de tu biblioteca de nube? Esta acción no se puede deshacer."))return;
+ try{
+  const r=await client.storage.from(bucket).remove([user.id+"/"+name]);
+  if(r.error)throw r.error;
+  if(currentTrack===name)clearPlayer();
+  await loadSongs();
+ }catch(err){msg(libraryStatus,"No se pudo eliminar: "+err.message);}
 });
-player.addEventListener("play",()=>{configureAudioSession();try{if(navigator.mediaSession)navigator.mediaSession.playbackState="playing";}catch(e){}});
-player.addEventListener("pause",()=>{try{if(navigator.mediaSession)navigator.mediaSession.playbackState="paused";}catch(e){}});
-if(navigator.mediaSession&&navigator.mediaSession.setActionHandler){for(const [action,handler] of [["play",()=>{configureAudioSession();return player.play();}],["pause",()=>player.pause()]])try{navigator.mediaSession.setActionHandler(action,handler);}catch(e){}}
+prevBtn.addEventListener("click",()=>skipTrack(-1));
+nextBtn.addEventListener("click",()=>skipTrack(1));
+playBtn.addEventListener("click",togglePlayback);
+shuffleBtn.addEventListener("click",()=>{shuffleOn=!shuffleOn;updatePlayerControls();});
+player.addEventListener("play",()=>{
+ configureAudioSession();updatePlayerControls();
+ try{if(navigator.mediaSession)navigator.mediaSession.playbackState="playing";}catch(e){}
+});
+player.addEventListener("pause",()=>{
+ updatePlayerControls();
+ try{if(navigator.mediaSession)navigator.mediaSession.playbackState="paused";}catch(e){}
+});
+player.addEventListener("ended",()=>{updatePlayerControls();if(library.length>1)skipTrack(1);});
+player.addEventListener("error",()=>{if(player.currentSrc)msg(libraryStatus,"Este archivo no se pudo reproducir en este dispositivo. Prueba un MP3 o M4A.");});
+if("mediaSession" in navigator&&navigator.mediaSession.setActionHandler){
+ for(const [action,handler] of [
+  ["play",()=>togglePlaybackIfPaused()],["pause",()=>player.pause()],
+  ["previoustrack",()=>skipTrack(-1)],["nexttrack",()=>skipTrack(1)]
+ ])try{navigator.mediaSession.setActionHandler(action,handler);}catch(e){}
+}
+function togglePlaybackIfPaused(){
+ if(!player.paused)return;
+ if(!currentTrack)return library.length?playTrack(library[0].name,true):undefined;
+ configureAudioSession();return player.play();
+}
+updatePlayerControls();
 client.auth.getUser().then(({data,error})=>{if(!error&&data&&data.user)showUser(data.user);}).catch(()=>{});
 client.auth.onAuthStateChange((event,session)=>{
  if(event==="SIGNED_OUT")showUser(null);
