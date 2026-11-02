@@ -33,7 +33,7 @@
 .local-song-data small{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#a8adc0;font-size:11px}
 .audio-lab .status{margin:10px 0}
 
-.hero .btn{display:inline-block;text-decoration:none;margin:7px 9px 0 0}.audio-lab{scroll-margin-top:20px}
+.hero .btn{display:inline-block;text-decoration:none;margin:7px 9px 0 0;cursor:pointer}.audio-choose{display:inline-block;cursor:pointer;margin:5px 0 10px}.audio-lab{scroll-margin-top:20px}
 @media(max-width:760px){.menu{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}.menu button{padding:7px 2px;font-size:9px;min-width:0}.hero .btn{font-size:13px;padding:10px 13px}}
 </style>
 </head>
@@ -52,14 +52,14 @@
 </aside>
 <main class="main">
 <div class="top"><div><p class="eyebrow">TU BIBLIOTECA MUSICAL</p><h1>El ritmo tiene <em>tu nombre.</em></h1><p class="subtitle">La salsa que te gusta, tus artistas favoritos y tus propias listas. Todo en tu espacio CALE.</p></div><label class="searchbox"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Buscar artista o canción..." aria-label="Buscar música"></label></div>
-<section class="hero"><div><p class="eyebrow">COLECCIÓN DESTACADA</p><h2>Salsa clásica · Fania</h2><p>Diez artistas, diez canciones oficiales para empezar. Explora, guarda favoritos y mezcla tus canciones favoritas.</p><button class="btn" id="playMix">▶ Escuchar mezcla</button><a class="btn secondary" href="#audioLab" id="caleImportHero">🎵 Importar mi música</a></div></section>
+<section class="hero"><div><p class="eyebrow">COLECCIÓN DESTACADA</p><h2>Salsa clásica · Fania</h2><p>Diez artistas, diez canciones oficiales para empezar. Explora, guarda favoritos y mezcla tus canciones favoritas.</p><button class="btn" id="playMix">▶ Escuchar mezcla</button><label class="btn secondary" for="caleAudioSource" id="caleImportHero">🎵 Importar mi música</label></div></section>
 <section id="artistsSection"><div class="section-title"><h2>Explora artistas</h2><span class="mini">10 artistas iniciales</span></div><div class="artists" id="artists"></div></section>
 <section id="catalog"><div class="section-title"><h2 id="listTitle">Canciones para ti</h2><span id="count" class="mini"></span></div><div class="tools"><button class="chip active" id="allFilter">Todas</button><button class="chip" id="onlyFania">Publicaciones de Fania</button><button class="chip" id="mySongs">Agregadas por mí</button><button class="chip" id="random">⇄ Aleatorio: apagado</button></div><div class="grid" id="songs"></div></section>
 <section class="player-area" id="playerSection"><div class="viewer"><div class="video-frame"><div id="ytPlayer"></div><div class="preplay" id="preplay"><b>♪ Tu música empieza aquí</b><span>Selecciona una canción para reproducirla.</span></div></div><div class="play-details"><h3 id="nowTitle">Selecciona una canción</h3><p id="nowArtist">CALE MUSIC · Reproductor oficial</p><div class="controls"><button class="iconbtn" id="prev" aria-label="Canción anterior" title="Anterior">⏮</button><button class="iconbtn" id="togglePlay" aria-label="Reproducir o pausar" title="Reproducir o pausar">▶</button><button class="iconbtn" id="next" aria-label="Siguiente canción" title="Siguiente">⏭</button><button class="iconbtn" id="shuffle" aria-label="Activar o desactivar modo aleatorio" title="Aleatorio">⇄</button><button class="iconbtn" id="heart" aria-label="Guardar como favorito" title="Favoritos">♡</button><a id="videoLink" class="btn secondary small hide" target="_blank" rel="noopener noreferrer">Abrir en YouTube ↗</a></div><p class="note">Se muestra el reproductor oficial de YouTube. Los anuncios, restricciones y reproducción automática dependen de YouTube. Mantén esta página abierta mientras escuchas.</p></div></div>
 <div class="panel"><h3>Mis playlists</h3><p>Crea listas personales: se guardan en este navegador, sin registro.</p><form id="newPlaylist" class="inputline"><input id="playlistName" placeholder="Ej. Salsa para cocinar" aria-label="Nombre de la nueva playlist" maxlength="45" required><button class="btn small" type="submit">Crear</button></form><div id="playlists" class<div class="audio-lab" id="audioLab">
 <h3>🎧 Mi biblioteca · Solo audio</h3>
 <p>Agrega tus archivos de música desde el celular o la computadora. Escúchalos aquí, sin videos ni anuncios.</p>
-<label for="caleAudioSource">Importar canciones MP3, M4A, WAV y otros formatos</label>
+<label for="caleAudioSource" class="btn secondary audio-choose">📂 Elegir archivos de música</label><p class="mini">Puedes seleccionar varios archivos MP3, M4A o WAV a la vez desde Archivos.</p>
 <input id="caleAudioSource" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.webm" multiple>
 <div class="status" id="caleAudioStatus" role="status" aria-live="polite">Preparando tu biblioteca privada...</div>
 <div id="caleAudioTrack" class="audio-track">Selecciona una canción de tu biblioteca.</div>
@@ -239,7 +239,7 @@ get('addMusic').addEventListener('submit',e=>{e.preventDefault();let id=extractI
     try{await refresh(firstNew);}catch(e){}
     setStatus('Importadas: '+added+(skipped?' · Ya existentes: '+skipped:'')+(failed?' · Sin guardar por espacio o permisos: '+failed:'')+'.');
   }
-  input.addEventListener('change',importFiles);
+  input.addEventListener('change',()=>{get('audioLab').scrollIntoView({behavior:'smooth',block:'start'});importFiles();});
   search.addEventListener('input',render);
   listEl.addEventListener('click',async e=>{
     const play=e.target.closest('[data-local-play]');
