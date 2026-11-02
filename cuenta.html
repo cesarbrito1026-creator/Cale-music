@@ -59,10 +59,10 @@ footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-siz
 <main>
 <p class="eyebrow">Tu espacio privado</p>
 <h1>Tu música. <em>Tu cuenta.</em></h1>
-<p class="subtitle">Entra con correo y contraseña para encontrar tu biblioteca de audio personal desde tu computadora o celular, una vez que esté activada la nube.</p>
+<p class="subtitle">Entra con tu correo y contraseña. Tu biblioteca privada estará disponible en los dispositivos donde inicies sesión.</p>
 <section class="card login-card" id="gate">
 <h2 id="formTitle">Iniciar sesión</h2>
-<p class="note" id="setupNotice">Para proteger tus archivos, estamos preparando la conexión con un servicio de cuentas y almacenamiento privado.</p>
+<p class="note" id="setupNotice">Tu espacio seguro para escuchar tus canciones y mantenerlas sincronizadas.</p>
 <form id="authForm" autocomplete="on">
 <label for="email">Correo electrónico (tu usuario)</label>
 <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" required disabled>
@@ -77,9 +77,9 @@ footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-siz
 </section>
 <section class="card hidden" id="dashboard">
 <div class="topline"><div><h2>🎧 Mi biblioteca privada</h2><p class="username" id="welcome"></p></div><button class="btn secondary" id="signout" type="button">Cerrar sesión</button></div>
-<p class="note">Solo los archivos que subas aquí estarán sincronizados con tu cuenta. Los archivos importados anteriormente en «Mi música» siguen guardados en el navegador anterior.</p>
+<p class="note">Tus canciones guardadas en esta cuenta estarán disponibles en tus dispositivos. También puedes traer los MP3 que ya importaste en este navegador.</p>
 <label for="upload">Subir canciones desde mi dispositivo</label>
-<div class="toolbar"><input type="file" id="upload" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg" multiple><button type="button" class="btn secondary" id="refresh">Actualizar biblioteca</button></div>
+<div class="toolbar"><input type="file" id="upload" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg" multiple><button type="button" class="btn secondary" id="refresh">Actualizar biblioteca</button><button type="button" class="btn secondary" id="syncLocal">☁️ Sincronizar mis canciones guardadas aquí</button></div>
 <div class="status" id="libraryStatus" role="status" aria-live="polite">Preparando tu biblioteca...</div>
 <p class="previewtitle" id="nowPlaying">Selecciona una canción</p>
 <audio id="player" controls preload="metadata" aria-label="Reproductor de audio de CALE MUSIC"></audio>
@@ -169,6 +169,51 @@ function renderSongs(){
  '<button type="button" class="icon-btn" data-delete="'+esc(f.name)+'" aria-label="Eliminar canción">×</button></div>'
  ).join("");
 }
+
+async function getSavedLocalMusic(){
+ return new Promise((resolve,reject)=>{
+  if(!("indexedDB" in window)){resolve([]);return;}
+  const req=indexedDB.open("cale-music-audio-v1",1);
+  req.onerror=()=>reject(req.error||new Error("No se pudo abrir la música local"));
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("songs"))req.result.createObjectStore("songs",{keyPath:"id"});};
+  req.onsuccess=()=>{
+   const db=req.result;
+   if(!db.objectStoreNames.contains("songs")){db.close();resolve([]);return;}
+   const tx=db.transaction("songs","readonly"),getAll=tx.objectStore("songs").getAll();
+   getAll.onsuccess=()=>{const songs=getAll.result||[];db.close();resolve(songs);};
+   getAll.onerror=()=>{db.close();reject(getAll.error||new Error("Error de lectura"));};
+  };
+ });
+}
+async function localKey(song){
+ const bytes=new TextEncoder().encode(song.id||song.name+"|"+song.size);
+ const digest=await crypto.subtle.digest("SHA-256",bytes);
+ const hash=[...new Uint8Array(digest)].slice(0,10).map(b=>b.toString(16).padStart(2,"0")).join("");
+ return "local_"+hash+"__"+cleanName(song.name);
+}
+el("syncLocal").addEventListener("click",async()=>{
+ if(!user)return;
+ const b=el("syncLocal");b.disabled=true;
+ try{
+  const local=await getSavedLocalMusic();
+  if(!local.length){msg(libraryStatus,"No hay canciones importadas anteriormente en este navegador. Puedes subir archivos usando el selector de arriba.");return;}
+  let saved=0,skipped=0,failed=0;
+  for(let i=0;i<local.length;i++){
+   const s=local[i];
+   if(!s.blob||!goodFile({name:s.name,type:s.blob.type||""})||s.size>50*1024*1024){failed++;continue;}
+   const name=await localKey(s),key=user.id+"/"+name;
+   msg(libraryStatus,"Sincronizando "+(i+1)+" de "+local.length+" canciones...");
+   const r=await client.storage.from(bucket).upload(key,s.blob,{upsert:false,contentType:s.blob.type||"audio/mpeg"});
+   if(!r.error)saved++;
+   else if(String(r.error.statusCode||"")==="409"||/already exists|duplicate/i.test(r.error.message||""))skipped++;
+   else failed++;
+  }
+  await loadSongs();
+  msg(libraryStatus,"Sincronizadas: "+saved+". Ya existentes: "+skipped+". No subidas: "+failed+".");
+ }catch(err){msg(libraryStatus,"No se pudo sincronizar: "+(err.message||"Error desconocido"));}
+ finally{b.disabled=false;}
+});
+
 el("filter").addEventListener("input",renderSongs);
 el("refresh").addEventListener("click",loadSongs);
 el("upload").addEventListener("change",async e=>{
