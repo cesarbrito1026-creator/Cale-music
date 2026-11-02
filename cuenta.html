@@ -65,9 +65,9 @@ footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-siz
 <p class="note" id="setupNotice">Para proteger tus archivos, estamos preparando la conexión con un servicio de cuentas y almacenamiento privado.</p>
 <form id="authForm" autocomplete="on">
 <label for="email">Correo electrónico (tu usuario)</label>
-<input id="email" type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" required>
+<input id="email" type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" required disabled>
 <label for="password">Contraseña</label>
-<input id="password" type="password" autocomplete="current-password" minlength="6" placeholder="Tu contraseña" required>
+<input id="password" type="password" autocomplete="current-password" minlength="6" placeholder="Tu contraseña" required disabled>
 <div class="actions"><button class="btn" type="submit" id="authSubmit" disabled>Entrar</button>
 <button type="button" class="subtle" id="toggleRegister" disabled>Crear cuenta</button></div>
 </form>
@@ -116,6 +116,7 @@ if(!window.supabase||!window.supabase.createClient){msg(authStatus,"No se pudo c
 try{client=window.supabase.createClient(cfg.url.replace(/\/$/,""),cfg.publishableKey);}catch(e){msg(authStatus,"La configuración de la nube aún no es válida.");return;}
 el("setupNotice").textContent="Tus canciones de la nube estarán disponibles después de iniciar sesión.";
 msg(authStatus,"Introduce tu correo y contraseña para entrar.");
+el("email").disabled=false;el("password").disabled=false;
 setBusy(false);
 el("toggleRegister").addEventListener("click",()=>{
  registerMode=!registerMode;
