@@ -1,9 +1,7 @@
-// CALE MUSIC · Configuración pública para conectar la biblioteca privada.
-// Al crear el proyecto en Supabase, escribe solo la URL y la clave PUBLISHABLE.
-// NUNCA pongas aquí una clave "service_role", "secret", ni contraseñas.
-// El acceso a cada biblioteca depende de las políticas privadas (RLS).
+// CALE MUSIC · Solo URL y clave PUBLICABLE (seguras para cliente).
+// Nunca almacenar claves secretas o service_role en este repositorio.
 window.CALE_CLOUD = {
-  url: "",
-  publishableKey: "",
+  url: "https://axdydjqjtqzppunqsxzv.supabase.co",
+  publishableKey: "sb_publishable_V_Lowxh_iUeoogVfWOYpUQ_v9Je93pN",
   bucket: "cale-audio"
 };
