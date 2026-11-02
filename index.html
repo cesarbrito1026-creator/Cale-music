@@ -12,6 +12,13 @@
 @media (max-width:1050px){.artists{grid-template-columns:repeat(5,minmax(0,1fr))}.player-area{grid-template-columns:1fr}.panel{order:2}}
 @media (max-width:760px){.app{display:block}.sidebar{height:auto;position:static;padding:10px 12px;display:block}.brand{justify-content:center;padding:0}.brand img{width:44px;height:44px}.brand strong{font-size:15px}.brand small{font-size:9px}.menu{display:flex;justify-content:space-around;gap:3px;margin-top:3px}.menu button{display:grid;justify-items:center;gap:0;font-size:10px;padding:7px 8px}.menu .symbol{font-size:18px}.sidebar-foot{display:none}.main{padding:20px 14px 35px}.top{align-items:stretch;flex-direction:column;gap:15px;margin-bottom:20px}.searchbox{max-width:none}.hero{padding:20px}.hero h2{font-size:22px}.hero:after{right:-20px}.artists{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.artist{padding:8px 3px;min-height:98px}.avatar{height:42px;width:42px;font-size:17px}.artist span:last-child{font-size:10px}.grid{grid-template-columns:1fr;gap:8px}.song .cover{width:70px;height:59px}.section-title h2{font-size:20px}.viewer,.panel{border-radius:15px}.play-details{padding:15px}}
 @media(max-width:400px){.artists{grid-template-columns:repeat(4,minmax(0,1fr))}.subtitle{font-size:13px}.hero p{font-size:13px}}
+
+/* Reproductor de audio personal sin video */
+.audio-lab{border-top:1px solid #343948;padding-top:18px;margin-top:18px}
+.audio-lab audio{display:block;width:100%;margin:13px 0 9px}
+.audio-lab input[type=file]{display:block;width:100%;color:#cfd0db;background:#10141e;border:1px dashed #555a70;border-radius:10px;padding:10px;font-size:12px}
+.audio-lab .audio-track{font-size:13px;color:#f4c979;font-weight:700;word-break:break-word;min-height:19px}
+.audio-lab .controls{margin-top:10px}
 </style>
 </head>
 <body>
@@ -32,7 +39,7 @@
 <section id="artistsSection"><div class="section-title"><h2>Explora artistas</h2><span class="mini">10 artistas iniciales</span></div><div class="artists" id="artists"></div></section>
 <section id="catalog"><div class="section-title"><h2 id="listTitle">Canciones para ti</h2><span id="count" class="mini"></span></div><div class="tools"><button class="chip active" id="allFilter">Todas</button><button class="chip" id="onlyFania">Publicaciones de Fania</button><button class="chip" id="mySongs">Agregadas por mí</button><button class="chip" id="random">⇄ Aleatorio: apagado</button></div><div class="grid" id="songs"></div></section>
 <section class="player-area" id="playerSection"><div class="viewer"><div class="video-frame"><div id="ytPlayer"></div><div class="preplay" id="preplay"><b>♪ Tu música empieza aquí</b><span>Selecciona una canción para reproducirla.</span></div></div><div class="play-details"><h3 id="nowTitle">Selecciona una canción</h3><p id="nowArtist">CALE MUSIC · Reproductor oficial</p><div class="controls"><button class="iconbtn" id="prev" aria-label="Canción anterior" title="Anterior">⏮</button><button class="iconbtn" id="togglePlay" aria-label="Reproducir o pausar" title="Reproducir o pausar">▶</button><button class="iconbtn" id="next" aria-label="Siguiente canción" title="Siguiente">⏭</button><button class="iconbtn" id="shuffle" aria-label="Activar o desactivar modo aleatorio" title="Aleatorio">⇄</button><button class="iconbtn" id="heart" aria-label="Guardar como favorito" title="Favoritos">♡</button><a id="videoLink" class="btn secondary small hide" target="_blank" rel="noopener noreferrer">Abrir en YouTube ↗</a></div><p class="note">Se muestra el reproductor oficial de YouTube. Los anuncios, restricciones y reproducción automática dependen de YouTube. Mantén esta página abierta mientras escuchas.</p></div></div>
-<div class="panel"><h3>Mis playlists</h3><p>Crea listas personales: se guardan en este navegador, sin registro.</p><form id="newPlaylist" class="inputline"><input id="playlistName" placeholder="Ej. Salsa para cocinar" aria-label="Nombre de la nueva playlist" maxlength="45" required><button class="btn small" type="submit">Crear</button></form><div id="playlists" class="playlist-list"></div><div id="playlistStatus" class="status" aria-live="polite"></div><div class="importer"><h3>Agrega tu música</h3><p>Incluye otros videos que permitan reproducción integrada. No descargamos ni almacenamos audio.</p><form id="addMusic"><label for="newTitle">Título</label><input id="newTitle" required maxlength="90" placeholder="Nombre de la canción"><label for="newArtist">Artista</label><input id="newArtist" required maxlength="70" placeholder="Nombre del artista"><label for="newUrl">Enlace de YouTube</label><input id="newUrl" type="url" required placeholder="https://www.youtube.com/watch?v=..."><button class="btn small" type="submit">+ Agregar canción</button></form><div id="addStatus" class="status" aria-live="polite"></div></div></div></section>
+<div class="panel"><h3>Mis playlists</h3><p>Crea listas personales: se guardan en este navegador, sin registro.</p><form id="newPlaylist" class="inputline"><input id="playlistName" placeholder="Ej. Salsa para cocinar" aria-label="Nombre de la nueva playlist" maxlength="45" required><button class="btn small" type="submit">Crear</button></form><div id="playlists" class="playlist-list"></div><div id="playlistStatus" class="status" aria-live="polite"></div><div class="audio-lab" id="audioLab"><h3>🎧 Solo audio · Prueba</h3><p>Para comprobar la reproducción sin videos: selecciona archivos de audio tuyos o autorizados desde tu teléfono. No se suben a internet.</p><label for="caleAudioSource">Seleccionar canciones de audio</label><input id="caleAudioSource" type="file" accept="audio/*" multiple><div id="caleAudioTrack" class="audio-track">Todavía no has seleccionado un audio.</div><audio id="caleAudioPlayer" controls preload="metadata" aria-label="Reproductor de solo audio"></audio><div class="controls"><button type="button" class="btn secondary small" id="caleAudioPrev">⏮ Anterior</button><button type="button" class="btn secondary small" id="caleAudioNext">Siguiente ⏭</button></div><p class="note">Esta prueba usa el reproductor del navegador. En iPhone puede seguir sonando con la pantalla bloqueada, aunque iOS puede limitar el cambio automático de canción. Los temas de Fania todavía se escuchan mediante YouTube.</p></div><div class="importer"><h3>Agrega tu música</h3><p>Incluye otros videos que permitan reproducción integrada. No descargamos ni almacenamos audio.</p><form id="addMusic"><label for="newTitle">Título</label><input id="newTitle" required maxlength="90" placeholder="Nombre de la canción"><label for="newArtist">Artista</label><input id="newArtist" required maxlength="70" placeholder="Nombre del artista"><label for="newUrl">Enlace de YouTube</label><input id="newUrl" type="url" required placeholder="https://www.youtube.com/watch?v=..."><button class="btn small" type="submit">+ Agregar canción</button></form><div id="addStatus" class="status" aria-live="polite"></div></div></div></section>
 <footer class="footer">CALE MUSIC es una biblioteca personal de enlaces, no un servicio de descarga de canciones. Los videos se reproducen desde YouTube en su reproductor visible. Puedes encontrar las fuentes en los enlaces de cada video. Los favoritos y playlists se almacenan solo en el dispositivo y navegador que estés usando.</footer>
 </main></div>
 <script src="https://www.youtube.com/iframe_api" async></script>
@@ -66,7 +73,7 @@ function renderSongs(){const list=videos();get('count').textContent=list.length+
 function renderPlaylists(){let keys=Object.keys(playlists);get('playlists').innerHTML=keys.length?keys.map(n=>`<button type="button" class="playlist-btn" data-pl="${enc(n)}"><span>♫ ${enc(n)}</span><small>${playlists[n].length} canciones</small></button>`).join(''):'<p class="mini">Todavía no tienes playlists.</p>';}
 function setView(v){view=v;artistFilter='';playlistFilter='';query='';get('search').value='';get('nav').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));get('listTitle').textContent=({all:'Canciones para ti',salsa:'Salsa clásica',favorites:'Mis favoritas',playlists:'Mis playlists'})[v]||'Canciones';get('artistsSection').classList.toggle('hide',v==='favorites'||v==='playlists');if(v==='playlists'&&!Object.keys(playlists).length)get('listTitle').textContent='Crea tu primera playlist';if(v==='playlists'&&Object.keys(playlists).length){playlistFilter=Object.keys(playlists)[0];get('listTitle').textContent=playlistFilter;}renderSongs();get('catalog').scrollIntoView({behavior:'smooth',block:'start'});}
 function updateNow(){get('nowTitle').textContent=selected?.title||'Selecciona una canción';get('nowArtist').textContent=selected?.artist||'CALE MUSIC · Reproductor oficial';get('heart').textContent=selected&&favorites.has(selected.id)?'♥':'♡';get('heart').classList.toggle('liked',!!selected&&favorites.has(selected.id));get('shuffle').classList.toggle('enabled',shuffleOn);get('random').textContent=`⇄ Aleatorio: ${shuffleOn?'encendido':'apagado'}`;get('random').classList.toggle('active',shuffleOn);get('videoLink').classList.toggle('hide',!selected);if(selected)get('videoLink').href='https://www.youtube.com/watch?v='+encodeURIComponent(selected.id);}
-function playTrack(t){if(!t)return;selected=t;pending=t.id;get('preplay').classList.add('hide');updateNow();renderSongs();document.getElementById('playerSection').scrollIntoView({behavior:'smooth',block:'nearest'});if(window.YT&&typeof YT.Player==='function'){ensurePlayer();if(ready){try{player.loadVideoById(t.id)}catch{}}}else{get('preplay').classList.remove('hide');get('preplay').innerHTML='<b>Preparando reproductor...</b><span>Si el video no carga, usa “Abrir en YouTube”.</span>';}}
+function playTrack(t){if(!t)return;if(window.calePersonalAudio)window.calePersonalAudio.pause();selected=t;pending=t.id;get('preplay').classList.add('hide');updateNow();renderSongs();document.getElementById('playerSection').scrollIntoView({behavior:'smooth',block:'nearest'});if(window.YT&&typeof YT.Player==='function'){ensurePlayer();if(ready){try{player.loadVideoById(t.id)}catch{}}}else{get('preplay').classList.remove('hide');get('preplay').innerHTML='<b>Preparando reproductor...</b><span>Si el video no carga, usa “Abrir en YouTube”.</span>';}}
 function ensurePlayer(){if(player||!pending||!window.YT||typeof YT.Player!=='function')return;player=new YT.Player('ytPlayer',{height:'100%',width:'100%',videoId:pending,playerVars:{playsinline:1,rel:0,modestbranding:1},events:{onReady(e){ready=true;if(selected)try{e.target.loadVideoById(selected.id)}catch{}},onStateChange(e){if(e.data===0)goNext()},onError(){get('playlistStatus').textContent='Este video no permite reproducirse aquí. Puedes abrirlo en YouTube.';}}});}
 window.onYouTubeIframeAPIReady=()=>{if(pending)ensurePlayer()};
 function goNext(reverse=false){makeQueue();if(!queue.length)return;let i=queue.findIndex(t=>t.id===selected?.id);let next;if(shuffleOn&&queue.length>1){const other=queue.filter(t=>t.id!==selected?.id);next=other[Math.floor(Math.random()*other.length)]}else{next=queue[(i+(reverse?-1:1)+queue.length)%queue.length]}playTrack(next);}
@@ -86,6 +93,54 @@ get('heart').addEventListener('click',()=>toggleFavorite(selected?.id));
 get('newPlaylist').addEventListener('submit',e=>{e.preventDefault();const n=get('playlistName').value.trim();if(!n)return;if(playlists[n]){notify('playlistStatus','Ya existe una lista con ese nombre.');return}playlists[n]=[];save('playlists',playlists);get('playlistName').value='';renderPlaylists();notify('playlistStatus','Playlist creada: '+n);});
 get('playlists').addEventListener('click',e=>{const b=e.target.closest('[data-pl]');if(!b)return;view='playlists';artistFilter='';playlistFilter=b.dataset.pl;get('listTitle').textContent=playlistFilter;get('artistsSection').classList.add('hide');get('nav').querySelectorAll('button').forEach(el=>el.classList.toggle('active',el.dataset.view==='playlists'));renderSongs();get('catalog').scrollIntoView({behavior:'smooth'});});
 get('addMusic').addEventListener('submit',e=>{e.preventDefault();let id=extractId(get('newUrl').value.trim());if(!id||!/^[\w-]{11}$/.test(id)){notify('addStatus','Necesitas un enlace de YouTube válido.');return}if(tracks().some(x=>x.id===id)){notify('addStatus','Esta canción ya está en tu biblioteca.');return}const t={id,title:get('newTitle').value.trim(),artist:get('newArtist').value.trim(),official:false,channel:'Agregada por ti'};if(!t.title||!t.artist)return;custom.push(t);save('custom',custom);e.target.reset();source='all';view='all';artistFilter='';playlistFilter='';query='';get('search').value='';document.querySelectorAll('.tools .chip').forEach(b=>{if(b.id!=='random')b.classList.toggle('active',b.id==='allFilter')});get('listTitle').textContent='Canciones para ti';renderSongs();notify('addStatus','¡Canción agregada! Ya aparece en la biblioteca.');});
+
+// Modo local de solo audio. El audio nunca se sube a GitHub ni a servidores.
+(function initPersonalAudio(){
+  const input=get('caleAudioSource'),audio=get('caleAudioPlayer'),label=get('caleAudioTrack');
+  const prev=get('caleAudioPrev'),next=get('caleAudioNext');
+  window.calePersonalAudio=audio;
+  let files=[],urls=[],index=0;
+  function mediaInfo(){
+    if(!files.length)return;
+    if('mediaSession' in navigator && typeof MediaMetadata!=='undefined'){
+      navigator.mediaSession.metadata=new MediaMetadata({
+        title:files[index].name.replace(/\.[^.]+$/,''),artist:'Mi audio personal',album:'CALE MUSIC'
+      });
+    }
+  }
+  function selectTrack(i,autoPlay=false){
+    if(!files.length)return;
+    index=(i+files.length)%files.length;
+    audio.src=urls[index];
+    label.textContent=files[index].name+' · '+(index+1)+' de '+files.length;
+    mediaInfo();
+    audio.load();
+    if(autoPlay){audio.play().catch(()=>{label.textContent=files[index].name+' · Presiona ▶ para continuar.';});}
+  }
+  input.addEventListener('change',()=>{
+    const picked=Array.from(input.files||[]).filter(f=>f.type.startsWith('audio/') || /\.(mp3|m4a|aac|wav|ogg|flac)$/i.test(f.name));
+    if(!picked.length){label.textContent='Selecciona al menos un archivo de audio compatible.';return;}
+    audio.pause();
+    urls.forEach(url=>URL.revokeObjectURL(url));
+    files=picked;urls=files.map(f=>URL.createObjectURL(f));
+    selectTrack(0,false);
+    label.textContent=files[0].name+' · Presiona ▶ para escuchar.';
+  });
+  audio.addEventListener('play',()=>{
+    try{if(ready&&player)player.pauseVideo();}catch(e){}
+    if('mediaSession' in navigator)navigator.mediaSession.playbackState='playing';
+  });
+  audio.addEventListener('pause',()=>{if('mediaSession' in navigator)navigator.mediaSession.playbackState='paused';});
+  audio.addEventListener('ended',()=>{if(files.length>1)selectTrack(index+1,true);});
+  prev.addEventListener('click',()=>selectTrack(index-1,true));
+  next.addEventListener('click',()=>selectTrack(index+1,true));
+  if('mediaSession' in navigator && navigator.mediaSession.setActionHandler){
+    [['play',()=>audio.play()],['pause',()=>audio.pause()],
+      ['previoustrack',()=>selectTrack(index-1,true)],['nexttrack',()=>selectTrack(index+1,true)]]
+    .forEach(([action,handler])=>{try{navigator.mediaSession.setActionHandler(action,handler);}catch(e){}});
+  }
+})();
+
 updateNow();renderArtists();renderSongs();renderPlaylists();
 </script>
 </body>
