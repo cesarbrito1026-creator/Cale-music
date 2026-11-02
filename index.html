@@ -181,7 +181,7 @@ function setView(which){
  byId("sectionTitle").textContent=({all:"Mi biblioteca",songs:"Todas mis canciones",favorites:"Mis favoritas",playlists:selectedPlaylist||"Mis listas"})[view];
  byId("sectionSubtitle").textContent=({all:"Escucha tu colección personal.",songs:"Archivos de música importados por ti.",favorites:"Tus canciones favoritas.",playlists:"Selecciona una lista o agrega canciones."})[view];
  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
- render();byId("tracks").scrollIntoView({behavior:"smooth",block:"start"});
+ render();byId(view==="playlists"?"playlistsPanel":"tracks").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function choose(id,autoplay){
  const s=songs.find(item=>item.id===id);if(!s||!s.blob){setStatus("No se encontró el archivo de audio de esta canción.");return;}
