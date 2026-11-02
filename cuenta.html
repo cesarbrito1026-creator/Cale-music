@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1016">
+<meta name="description" content="CALE MUSIC — tu biblioteca musical privada">
+<title>Mi cuenta · CALE MUSIC</title>
+<style>
+:root{color-scheme:dark;--bg:#0c0e14;--panel:#181d2a;--edge:#373b4d;--light:#f8f5fa;--muted:#adb0c1;--gold:#f4c979}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse 760px 430px at 85% 0%,#432a4a 0,transparent 75%),radial-gradient(ellipse 600px 500px at 0% 100%,#243a47 0,transparent 75%),var(--bg);color:var(--light);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:15px;max-width:1050px;margin:auto;padding:26px 20px}
+.brand{color:#fff;font-weight:800;letter-spacing:2px;font-size:21px;text-decoration:none}
+.back{color:#d5cee5;text-decoration:none;border:1px solid #4d4c5a;border-radius:999px;padding:9px 14px}
+main{width:min(100% - 30px,1050px);margin:35px auto 80px}
+h1{font-size:clamp(31px,5vw,52px);line-height:1.08;margin:0 0 12px}
+h1 em{font-style:normal;color:var(--gold)}
+.eyebrow{letter-spacing:2px;color:var(--gold);text-transform:uppercase;font-size:12px;font-weight:800;margin-bottom:10px}
+.subtitle{color:#c0bfd0;max-width:600px;margin:0 0 25px}
+.card{background:#181d2add;border:1px solid var(--edge);border-radius:23px;padding:clamp(18px,4vw,32px);box-shadow:0 18px 45px #0003}
+.login-card{max-width:510px}
+h2{font-size:24px;margin:0 0 12px}
+p{margin:0 0 14px}
+label{font-weight:650;display:block;font-size:13px;margin:15px 0 6px}
+input{font:inherit;width:100%;color:#fff;background:#101521;border:1px solid #4b4c5b;border-radius:11px;padding:12px 13px}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--gold);color:#17131b;border:0;border-radius:999px;font-weight:800;padding:12px 20px;margin-top:15px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.secondary{background:#2b3040;color:#f7f7fa;border:1px solid #4b5064}
+.subtle{border:0;background:none;color:#edc982;text-decoration:underline;padding:4px;cursor:pointer}
+.actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.note{font-size:12px;color:#aaaec0;line-height:1.6;margin-top:15px}
+.status{margin-top:16px;padding:12px 14px;border:1px solid #4c5163;border-radius:12px;background:#121722;color:#e4dfeb;font-size:13px}
+.setup{border-color:#836f56;background:#2d2730;color:#f9e5b5}
+.hidden{display:none!important}
+.topline{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap}
+.username{color:#bdbccd;font-size:13px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:16px 0 22px}
+.toolbar input[type=file]{flex:1;min-width:220px;max-width:460px}
+.toolbar input[type=file]::file-selector-button{background:var(--gold);border:0;border-radius:8px;color:#111;padding:8px 10px;font-weight:750;margin-right:10px}
+.library{display:grid;gap:10px}
+.song{display:flex;align-items:center;gap:10px;min-width:0;border:1px solid #394052;background:#1d2331;padding:11px;border-radius:14px}
+.trackplay{border:0;background:none;color:inherit;text-align:left;display:flex;align-items:center;gap:10px;min-width:0;flex:1;padding:0}
+.trackplay .noteicon{color:var(--gold);font-size:27px}
+.name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.song small{display:block;font-size:11px;color:#aaaec0;font-weight:400}
+.icon-btn{border:1px solid #444a59;border-radius:10px;background:#292c38;color:#e1dbe7;padding:6px 10px}
+audio{width:100%;margin:8px 0 3px}
+.previewtitle{color:var(--gold);font-weight:800;margin-bottom:4px}
+.empty{color:#b0b3c3;background:#151b27;padding:25px;border-radius:15px;border:1px dashed #404759;text-align:center}
+footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-size:12px}
+@media(max-width:550px){header{padding-top:17px}.brand{font-size:18px}main{margin-top:16px}.song{gap:6px}.card{border-radius:16px}}
+</style>
+</head>
+<body>
+<header><a class="brand" href="./">CALE MUSIC</a><a href="./" class="back">← Volver a la música</a></header>
+<main>
+<p class="eyebrow">Tu espacio privado</p>
+<h1>Tu música. <em>Tu cuenta.</em></h1>
+<p class="subtitle">Entra con correo y contraseña para encontrar tu biblioteca de audio personal desde tu computadora o celular, una vez que esté activada la nube.</p>
+<section class="card login-card" id="gate">
+<h2 id="formTitle">Iniciar sesión</h2>
+<p class="note" id="setupNotice">Para proteger tus archivos, estamos preparando la conexión con un servicio de cuentas y almacenamiento privado.</p>
+<form id="authForm" autocomplete="on">
+<label for="email">Correo electrónico (tu usuario)</label>
+<input id="email" type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" required>
+<label for="password">Contraseña</label>
+<input id="password" type="password" autocomplete="current-password" minlength="6" placeholder="Tu contraseña" required>
+<div class="actions"><button class="btn" type="submit" id="authSubmit" disabled>Entrar</button>
+<button type="button" class="subtle" id="toggleRegister" disabled>Crear cuenta</button></div>
+</form>
+<button type="button" class="subtle" id="resetPassword" disabled>¿Olvidaste la contraseña?</button>
+<div class="status setup" id="authStatus" role="status" aria-live="polite">Acceso en preparación. Aún falta conectar el almacenamiento privado. Por seguridad, no introduzcas contraseñas hasta que esté activado.</div>
+<p class="note">Nunca compartas tu contraseña en un chat. No uses la contraseña de GitHub ni una que ya tengas en otro servicio.</p>
+</section>
+<section class="card hidden" id="dashboard">
+<div class="topline"><div><h2>🎧 Mi biblioteca privada</h2><p class="username" id="welcome"></p></div><button class="btn secondary" id="signout" type="button">Cerrar sesión</button></div>
+<p class="note">Solo los archivos que subas aquí estarán sincronizados con tu cuenta. Los archivos importados anteriormente en «Mi música» siguen guardados en el navegador anterior.</p>
+<label for="upload">Subir canciones desde mi dispositivo</label>
+<div class="toolbar"><input type="file" id="upload" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg" multiple><button type="button" class="btn secondary" id="refresh">Actualizar biblioteca</button></div>
+<div class="status" id="libraryStatus" role="status" aria-live="polite">Preparando tu biblioteca...</div>
+<p class="previewtitle" id="nowPlaying">Selecciona una canción</p>
+<audio id="player" controls preload="metadata" aria-label="Reproductor de audio de CALE MUSIC"></audio>
+<div class="toolbar"><input type="search" id="filter" placeholder="Buscar en mi música..." aria-label="Buscar canciones"></div>
+<div class="library" id="cloudSongs"><div class="empty">Aquí aparecerán tus canciones.</div></div>
+<p class="note">Los archivos están en una carpeta privada asociada con tu cuenta. No los compartimos públicamente. Las limitaciones de tamaño y espacio dependen del servicio de nube.</p>
+</section>
+</main>
+<footer>CALE MUSIC · Biblioteca personal · Sube únicamente archivos que tengas derecho a almacenar y utilizar.</footer>
+<script src="./assets/cale-cloud-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+"use strict";
+const el=id=>document.getElementById(id);
+const gate=el("gate"),dash=el("dashboard"),authForm=el("authForm"),authStatus=el("authStatus"),libraryStatus=el("libraryStatus"),songsDiv=el("cloudSongs"),player=el("player");
+const cfg=window.CALE_CLOUD||{};
+const configured=/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(cfg.url||"")&&/^sb_publishable_|^eyJ/.test(cfg.publishableKey||"");
+const bucket=cfg.bucket||"cale-audio";
+let client=null,user=null,registerMode=false,library=[],loading=false;
+function msg(target,text){target.textContent=text;}
+function esc(s){return String(s).replace(/[&<>"']/g,k=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[k]));}
+function goodFile(f){return f && (f.type.startsWith("audio/")||/\.(mp3|m4a|aac|wav|flac|ogg)$/i.test(f.name));}
+function cleanName(name){return name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_.-]/g,"_").slice(0,95)||"audio.mp3";}
+function displayName(name){return name.replace(/^\d+_[a-z0-9]+__/,"").replace(/_/g," ");}
+function showUser(u){
+ user=u||null;gate.classList.toggle("hidden",!!user);dash.classList.toggle("hidden",!user);
+ if(user){el("welcome").textContent=user.email||"Mi cuenta";el("password").value="";loadSongs();}
+ else{player.pause();player.removeAttribute("src");player.load();library=[];songsDiv.innerHTML='<div class="empty">Aquí aparecerán tus canciones.</div>';}
+}
+function setBusy(b){el("authSubmit").disabled=b;el("toggleRegister").disabled=b;el("resetPassword").disabled=b;}
+if(!configured){el("setupNotice").textContent="Esta página de acceso ya está diseñada. Falta conectar el servicio de cuentas y almacenamiento privado para habilitarla.";return;}
+if(!window.supabase||!window.supabase.createClient){msg(authStatus,"No se pudo cargar el servicio de cuentas. Revisa tu conexión a internet.");return;}
+try{client=window.supabase.createClient(cfg.url.replace(/\/$/,""),cfg.publishableKey);}catch(e){msg(authStatus,"La configuración de la nube aún no es válida.");return;}
+el("setupNotice").textContent="Tus canciones de la nube estarán disponibles después de iniciar sesión.";
+msg(authStatus,"Introduce tu correo y contraseña para entrar.");
+setBusy(false);
+el("toggleRegister").addEventListener("click",()=>{
+ registerMode=!registerMode;
+ el("formTitle").textContent=registerMode?"Crear mi cuenta":"Iniciar sesión";
+ el("authSubmit").textContent=registerMode?"Registrarme":"Entrar";
+ el("toggleRegister").textContent=registerMode?"Ya tengo cuenta":"Crear cuenta";
+ el("password").setAttribute("autocomplete",registerMode?"new-password":"current-password");
+});
+authForm.addEventListener("submit",async event=>{
+ event.preventDefault();setBusy(true);msg(authStatus,"Conectando de forma segura...");
+ const email=el("email").value.trim(),password=el("password").value;
+ try{
+  const result=registerMode?await client.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}})
+                           :await client.auth.signInWithPassword({email,password});
+  if(result.error)throw result.error;
+  if(registerMode&&!result.data.session){msg(authStatus,"Revisa tu correo para confirmar la cuenta. Después vuelve a esta página para entrar.");}
+  else if(result.data.user){msg(authStatus,"Sesión iniciada.");showUser(result.data.user);}
+ }catch(err){msg(authStatus,"No se pudo entrar: "+(err.message||"Revisa tus datos."));}
+ finally{setBusy(false);}
+});
+el("resetPassword").addEventListener("click",async()=>{
+ const email=el("email").value.trim();
+ if(!email){msg(authStatus,"Primero escribe tu correo electrónico.");return;}
+ try{
+  const r=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  if(r.error)throw r.error;
+  msg(authStatus,"Si la cuenta existe, recibirás instrucciones en tu correo.");
+ }catch(e){msg(authStatus,"No se pudo enviar el correo: "+e.message);}
+});
+el("signout").addEventListener("click",async()=>{const r=await client.auth.signOut();if(r.error)msg(libraryStatus,r.error.message);else showUser(null);});
+async function loadSongs(){
+ if(!user||loading)return;
+ loading=true;msg(libraryStatus,"Cargando tu biblioteca...");
+ try{
+  const result=await client.storage.from(bucket).list(user.id,{limit:100,sortBy:{column:"created_at",order:"desc"}});
+  if(result.error)throw result.error;
+  library=(result.data||[]).filter(f=>f.name&&!f.name.startsWith("."));
+  renderSongs();
+  msg(libraryStatus,library.length+" canción(es) en tu biblioteca privada."+(library.length===100?" Se muestran las primeras 100.":""));
+ }catch(err){msg(libraryStatus,"No se pudo cargar la biblioteca: "+(err.message||"Revisa la configuración privada."));}
+ finally{loading=false;}
+}
+function renderSongs(){
+ const term=el("filter").value.toLowerCase().trim();
+ const items=library.filter(f=>displayName(f.name).toLowerCase().includes(term));
+ if(!items.length){songsDiv.innerHTML='<div class="empty">No hay canciones aquí todavía. Importa tus archivos de audio arriba.</div>';return;}
+ songsDiv.innerHTML=items.map(f=>
+ '<div class="song"><button type="button" class="trackplay" data-play="'+esc(f.name)+'">'+
+ '<span class="noteicon">♫</span><span class="name">'+esc(displayName(f.name))+'<small>Audio en tu nube privada</small></span></button>'+
+ '<button type="button" class="icon-btn" data-delete="'+esc(f.name)+'" aria-label="Eliminar canción">×</button></div>'
+ ).join("");
+}
+el("filter").addEventListener("input",renderSongs);
+el("refresh").addEventListener("click",loadSongs);
+el("upload").addEventListener("change",async e=>{
+ if(!user)return;
+ const files=[...e.target.files].filter(goodFile);
+ if(!files.length){msg(libraryStatus,"Selecciona archivos MP3, M4A o WAV compatibles.");return;}
+ el("upload").disabled=true;
+ let ok=0,fail=0;
+ for(let i=0;i<files.length;i++){
+  const f=files[i];
+  if(f.size>50*1024*1024){fail++;continue;}
+  const random=Math.random().toString(36).slice(2,10);
+  const key=user.id+"/"+Date.now()+"_"+random+"__"+cleanName(f.name);
+  msg(libraryStatus,"Subiendo "+(i+1)+" de "+files.length+": "+f.name);
+  try{
+    const r=await client.storage.from(bucket).upload(key,f,{upsert:false,contentType:f.type||"audio/mpeg"});
+    if(r.error)throw r.error;
+    ok++;
+  }catch(err){fail++;msg(libraryStatus,"Error al subir "+f.name+": "+err.message);}
+ }
+ el("upload").value="";el("upload").disabled=false;
+ await loadSongs();msg(libraryStatus,"Subidas: "+ok+". Sin subir: "+fail+".");
+});
+songsDiv.addEventListener("click",async e=>{
+ if(!user)return;
+ const play=e.target.closest("[data-play]"),remove=e.target.closest("[data-delete]");
+ if(play){
+  const name=play.dataset.play;
+  try{
+   msg(libraryStatus,"Preparando audio...");
+   const r=await client.storage.from(bucket).createSignedUrl(user.id+"/"+name,3600);
+   if(r.error)throw r.error;
+   player.src=r.data.signedUrl;el("nowPlaying").textContent=displayName(name);
+   player.play().catch(()=>msg(libraryStatus,"Presiona ▶ para iniciar el audio."));
+   if("mediaSession" in navigator&&typeof MediaMetadata!=="undefined"){
+    navigator.mediaSession.metadata=new MediaMetadata({title:displayName(name),artist:"Mi música",album:"CALE MUSIC"});
+   }
+   msg(libraryStatus,"Reproduciendo desde tu biblioteca privada.");
+  }catch(err){msg(libraryStatus,"No se pudo reproducir: "+err.message);}
+ }else if(remove){
+  const name=remove.dataset.delete;
+  if(!confirm("¿Eliminar esta canción de tu biblioteca de nube? Esta acción no se puede deshacer."))return;
+  try{
+   const r=await client.storage.from(bucket).remove([user.id+"/"+name]);
+   if(r.error)throw r.error;
+   if(el("nowPlaying").textContent===displayName(name)){player.pause();player.removeAttribute("src");player.load();}
+   await loadSongs();
+  }catch(err){msg(libraryStatus,"No se pudo eliminar: "+err.message);}
+ }
+});
+client.auth.getUser().then(({data,error})=>{if(!error&&data&&data.user)showUser(data.user);}).catch(()=>{});
+client.auth.onAuthStateChange((event,session)=>{
+ if(event==="SIGNED_OUT")showUser(null);
+ else if(event==="SIGNED_IN"&&session&&session.user&&!user)showUser(session.user);
+});
+})();
+</script>
+</body>
+</html>
