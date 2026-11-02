@@ -123,18 +123,20 @@ audio{width:min(450px,100%);min-width:100px;height:42px;flex:1}
 <div class="section-head"><div><h2 id="sectionTitle">Mi biblioteca</h2><div class="section-sub" id="sectionSubtitle">Todas tus canciones en un solo lugar.</div></div><input class="search" id="search" type="search" placeholder="⌕  Buscar en mis canciones" aria-label="Buscar canciones"></div>
 <div class="songlist" id="songList"><div class="empty"><strong>Preparando tu biblioteca...</strong>Un momento.</div></div>
 </section>
-<div class="footer">Tus archivos se guardan en este navegador, no se publican en GitHub. Para mantenerlos también en tu cuenta y otros dispositivos, entra en <a href="./cuenta.html">Mi cuenta privada</a> y usa la opción para sincronizarlos. Conserva los originales; borrar los datos del navegador puede eliminar estas copias.</div>
+<div class="footer">En iPhone, abre esta página directamente en Safari y comienza a reproducir una canción antes de bloquear la pantalla. La reproducción en segundo plano depende de iOS y puede variar según el navegador. Tus archivos se guardan en este navegador, no se publican en GitHub. Para mantenerlos también en tu cuenta y otros dispositivos, entra en <a href="./cuenta.html">Mi cuenta privada</a> y usa la opción para sincronizarlos. Conserva los originales; borrar los datos del navegador puede eliminar estas copias.</div>
 </main>
 </div>
 <div class="dock" role="region" aria-label="Reproductor de música">
 <div class="now"><span class="now-icon">♫</span><div class="now-text"><strong id="nowTitle">Selecciona una canción</strong><small id="nowSub">CALE MUSIC · Solo audio</small></div></div>
-<div class="dock-center"><button type="button" id="prev" aria-label="Anterior" title="Anterior">⏮</button><button type="button" id="shuffle" aria-label="Modo aleatorio" title="Modo aleatorio">⇄</button><audio id="player" controls preload="metadata" aria-label="Reproductor de música"></audio><button type="button" id="next" aria-label="Siguiente" title="Siguiente">⏭</button></div>
+<div class="dock-center"><button type="button" id="prev" aria-label="Anterior" title="Anterior">⏮</button><button type="button" id="shuffle" aria-label="Modo aleatorio" title="Modo aleatorio">⇄</button><audio id="player" controls preload="auto" playsinline aria-label="Reproductor de música"></audio><button type="button" id="next" aria-label="Siguiente" title="Siguiente">⏭</button></div>
 </div>
 <script>
 (function(){
 "use strict";
 const byId=id=>document.getElementById(id);
 const fileInput=byId("audioFiles"),audio=byId("player"),status=byId("status"),list=byId("songList"),search=byId("search");
+function configureAudioSession(){try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}}
+configureAudioSession();
 const STORE="songs",DB_NAME="cale-music-audio-v1",FAV_KEY="cale-local-favorites-v1",PLAY_KEY="cale-local-playlists-v1";
 let db=null,songs=[],volatile=new Map(),activeId=null,activeUrl=null,shuffle=false,busy=false,view="all",selectedPlaylist="";
 let favorites=new Set(read(FAV_KEY,[])),playlists=read(PLAY_KEY,{});
@@ -194,7 +196,7 @@ function choose(id,autoplay){
  byId("nowSub").textContent="Mi biblioteca · "+formatBytes(s.size||0);
  try{if("mediaSession" in navigator&&typeof MediaMetadata!=="undefined")navigator.mediaSession.metadata=new MediaMetadata({title:title(s.name),artist:"Mi biblioteca",album:"CALE MUSIC"});}catch(e){}
  render();
- if(autoplay)audio.play().catch(()=>setStatus("Selecciona ▶ en el reproductor para escuchar esta canción."));
+ if(autoplay){configureAudioSession();audio.play().catch(()=>setStatus("Selecciona ▶ en el reproductor para escuchar esta canción."));}
 }
 function nextSong(delta){
  if(!songs.length)return;
@@ -301,10 +303,12 @@ byId("playlistPills").addEventListener("click",e=>{
 byId("prev").addEventListener("click",()=>nextSong(-1));
 byId("next").addEventListener("click",()=>nextSong(1));
 byId("shuffle").addEventListener("click",()=>{shuffle=!shuffle;byId("shuffle").classList.toggle("on",shuffle);byId("shuffle").setAttribute("aria-pressed",String(shuffle));});
+audio.addEventListener("play",()=>{configureAudioSession();try{if(navigator.mediaSession)navigator.mediaSession.playbackState="playing";}catch(e){}});
+audio.addEventListener("pause",()=>{try{if(navigator.mediaSession)navigator.mediaSession.playbackState="paused";}catch(e){}});
 audio.addEventListener("ended",()=>nextSong(1));
 audio.addEventListener("error",()=>{if(audio.currentSrc)setStatus("No se pudo reproducir este formato de audio en tu dispositivo. Prueba un MP3 o M4A.");});
 if("mediaSession" in navigator&&navigator.mediaSession.setActionHandler){
- for(const [name,fn] of [["previoustrack",()=>nextSong(-1)],["nexttrack",()=>nextSong(1)],["play",()=>audio.play()],["pause",()=>audio.pause()]])try{navigator.mediaSession.setActionHandler(name,fn);}catch(e){}
+ for(const [name,fn] of [["previoustrack",()=>nextSong(-1)],["nexttrack",()=>nextSong(1)],["play",()=>{configureAudioSession();return audio.play();}],["pause",()=>audio.pause()]])try{navigator.mediaSession.setActionHandler(name,fn);}catch(e){}
 }
 window.addEventListener("beforeunload",()=>{if(activeUrl)URL.revokeObjectURL(activeUrl);});
 render();
