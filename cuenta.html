@@ -82,7 +82,7 @@ footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-siz
 <div class="toolbar"><input type="file" id="upload" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg" multiple><button type="button" class="btn secondary" id="refresh">Actualizar biblioteca</button><button type="button" class="btn secondary" id="syncLocal">☁️ Sincronizar mis canciones guardadas aquí</button></div>
 <div class="status" id="libraryStatus" role="status" aria-live="polite">Preparando tu biblioteca...</div>
 <p class="previewtitle" id="nowPlaying">Selecciona una canción</p>
-<audio id="player" controls preload="metadata" aria-label="Reproductor de audio de CALE MUSIC"></audio>
+<audio id="player" controls preload="auto" playsinline aria-label="Reproductor de audio de CALE MUSIC"></audio>
 <div class="toolbar"><input type="search" id="filter" placeholder="Buscar en mi música..." aria-label="Buscar canciones"></div>
 <div class="library" id="cloudSongs"><div class="empty">Aquí aparecerán tus canciones.</div></div>
 <p class="note">Los archivos están en una carpeta privada asociada con tu cuenta. No los compartimos públicamente. Las limitaciones de tamaño y espacio dependen del servicio de nube.</p>
@@ -96,6 +96,8 @@ footer{max-width:1050px;margin:0 auto 32px;padding:0 20px;color:#8e91a2;font-siz
 "use strict";
 const el=id=>document.getElementById(id);
 const gate=el("gate"),dash=el("dashboard"),authForm=el("authForm"),authStatus=el("authStatus"),libraryStatus=el("libraryStatus"),songsDiv=el("cloudSongs"),player=el("player");
+function configureAudioSession(){try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}}
+configureAudioSession();
 const cfg=window.CALE_CLOUD||{};
 const configured=/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(cfg.url||"")&&/^sb_publishable_|^eyJ/.test(cfg.publishableKey||"");
 const bucket=cfg.bucket||"cale-audio";
@@ -247,7 +249,7 @@ songsDiv.addEventListener("click",async e=>{
    const r=await client.storage.from(bucket).createSignedUrl(user.id+"/"+name,3600);
    if(r.error)throw r.error;
    player.src=r.data.signedUrl;el("nowPlaying").textContent=displayName(name);
-   player.play().catch(()=>msg(libraryStatus,"Presiona ▶ para iniciar el audio."));
+   configureAudioSession();player.play().catch(()=>msg(libraryStatus,"Presiona ▶ para iniciar el audio."));
    if("mediaSession" in navigator&&typeof MediaMetadata!=="undefined"){
     navigator.mediaSession.metadata=new MediaMetadata({title:displayName(name),artist:"Mi música",album:"CALE MUSIC"});
    }
@@ -264,6 +266,9 @@ songsDiv.addEventListener("click",async e=>{
   }catch(err){msg(libraryStatus,"No se pudo eliminar: "+err.message);}
  }
 });
+player.addEventListener("play",()=>{configureAudioSession();try{if(navigator.mediaSession)navigator.mediaSession.playbackState="playing";}catch(e){}});
+player.addEventListener("pause",()=>{try{if(navigator.mediaSession)navigator.mediaSession.playbackState="paused";}catch(e){}});
+if(navigator.mediaSession&&navigator.mediaSession.setActionHandler){for(const [action,handler] of [["play",()=>{configureAudioSession();return player.play();}],["pause",()=>player.pause()]])try{navigator.mediaSession.setActionHandler(action,handler);}catch(e){}}
 client.auth.getUser().then(({data,error})=>{if(!error&&data&&data.user)showUser(data.user);}).catch(()=>{});
 client.auth.onAuthStateChange((event,session)=>{
  if(event==="SIGNED_OUT")showUser(null);
